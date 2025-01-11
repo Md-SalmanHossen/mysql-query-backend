@@ -1,12 +1,12 @@
 const DataModel = require("../../models/Brands/BrandsModel");
-const ProductsModel = require("../../models/Products/ProductsModel");
+const ProductsModel = require("../../models/product/ProductsModel");
 const CreateService = require("../../services/common/CreateService");
 const UpdateService = require("../../services/common/UpdateService");
 const ListService = require("../../services/common/ListService");
-const DropDownService = require("../../services/common/DropDownService");
+const DropDownService = require("../../services/common/DrowpDownService");
 const db = require("../../config/db"); // MySQL database connection
 const DeleteService = require("../../services/common/DeleteService");
-const DetailsByIDService = require("../../services/common/DetailsByIDService");
+const DetailsByIDService = require("../../services/common/DetailsByID");
 
 exports.CreateBrand = async (req, res) => {
     let Result = await CreateService(req, DataModel);

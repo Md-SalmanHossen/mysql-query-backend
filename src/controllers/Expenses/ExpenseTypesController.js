@@ -1,13 +1,14 @@
-const DataModel = require("../../models/Expenses/ExpenseTypesModel");
+const DataModel = require("../../models/expense/ExpenseTypesModel");
 const CreateService = require("../../services/common/CreateService");
 const UpdateService = require("../../services/common/UpdateService");
 const ListService = require("../../services/common/ListService");
-const DropDownService = require("../../services/common/DropDownService");
+
+const DropDownService = require("../../services/common/DrowpDownService");
 const db = require("../../config/db"); // Assuming db connection is set up
-const CheckAssociateService = require("../../services/common/CheckAssociateService");
-const ExpensesModel = require("../../models/Expenses/ExpensesModel");
+const CheckAssociateService = require("../../services/common/CheeckAssociateService");
+const ExpensesModel = require("../../models/expense/ExpenseModel");
 const DeleteService = require("../../services/common/DeleteService");
-const DetailsByIDService = require("../../services/common/DetailsByIDService");
+const DetailsByIDService = require("../../services/common/DetailsByID");
 
 exports.CreateExpenseTypes = async (req, res) => {
     let Result = await CreateService(req, DataModel);

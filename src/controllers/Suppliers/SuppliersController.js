@@ -1,12 +1,14 @@
 const DataModel = require("../../models/Suppliers/SuppliersModel");
 const CreateService = require("../../services/common/CreateService");
 const UpdateService = require("../../services/common/UpdateService");
+
 const ListService = require("../../services/common/ListService");
-const DropDownService = require("../../services/common/DropDownService");
-const CheckAssociateService = require("../../services/common/CheckAssociateService");
-const PurchasesModel = require("../../models/Purchases/PurchasesModel");
+const DropDownService = require("../../services/common/DrowpDownService");
+const CheckAssociateService = require("../../services/common/CheeckAssociateService");
+
+const PurchasesModel = require("../../models/purches/PurchesModel");
 const DeleteService = require("../../services/common/DeleteService");
-const DetailsByIDService = require("../../services/common/DetailsByIDService");
+const DetailsByIDService = require("../../services/common/DetailsByID");
 
 const db = require("../../config/db"); // Assuming db connection is defined
 

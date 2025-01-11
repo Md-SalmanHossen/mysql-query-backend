@@ -1,4 +1,4 @@
-const PurchasesModel = require("../../models/Purchases/PurchasesModel");  // Your Purchases model
+const PurchasesModel = require("../../models/purches/PurchesModel");  // Your Purchases model
 const sequelize = require("sequelize");  // Sequelize for MySQL queries
 
 const PurchaseSummaryService = async (Request) => {

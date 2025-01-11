@@ -1,4 +1,4 @@
-const ExpensesModel = require("../../models/Expenses/ExpensesModel");  // Your Expenses model
+const ExpensesModel = require("../../models/expense/ExpenseModel");  // Your Expenses model
 const sequelize = require("sequelize");  // Sequelize for MySQL queries
 
 const ExpenseSummaryService = async (Request) => {

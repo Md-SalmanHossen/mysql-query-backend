@@ -1,4 +1,4 @@
-const SalesModel = require("../../models/Sales/SalesModel");  // Your Sales model
+const SalesModel = require("../../models/sells/SalesModel");  // Your Sales model
 
 const SalesSummaryService = async (Request) => {
     try {

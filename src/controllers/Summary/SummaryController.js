@@ -1,6 +1,6 @@
 const ExpenseSummaryService = require("../../services/summary/ExpenseSummaryService");
 const ReturnSummaryService = require("../../services/summary/ReturnSummaryService");
-const PurchaseSummaryService = require("../../services/summary/PurchaseSummaryService");
+const PurchaseSummaryService = require("../../services/summary/PurchesSummaryService");
 const SalesSummaryService = require("../../services/summary/SalesSummaryService");
 
 exports.ExpensesSummary=async (req, res) => {

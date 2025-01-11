@@ -1,5 +1,5 @@
-const db = require('../config/db');
-const SendEmailUtility = require('../../utility/SendEmailUtility');
+const db = require('../../config/db');
+const SendEmailUtility = require('../../utils/SendMailUtility');
 
 const UserVerifyEmailService = async (Request) => {
     try {

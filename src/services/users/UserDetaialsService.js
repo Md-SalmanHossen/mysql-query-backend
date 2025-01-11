@@ -1,4 +1,4 @@
-const db = require('../config/db');
+const db = require('../../config/db');
 
 const UserDetailsService = async (Request) => {
     try {

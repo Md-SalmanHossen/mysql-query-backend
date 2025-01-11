@@ -1,19 +1,22 @@
 const express = require('express');
 const AuthVerifyMiddleware = require("../middlewares/AuthVerifyMiddleware");
-const UsersController = require("../controllers/Users/UserController");
-const BrandsController = require("../controllers/Brands/BrandsController");
-const CategoriesController = require("../controllers/Categories/CategoriesController");
-const CustomersController = require("../controllers/Customers/CustomersController");
+const UsersController = require("../controllers/Users/UsersController");
+/*const BrandsController = require("../controllers/Brands/BrandsController");
+
+const CategoriesController = require("../controllers/Categories/CategoryController");
+const CustomersController = require("../controllers/Customers/CustomerController");
 const SuppliersController = require("../controllers/Suppliers/SuppliersController");
+
 const ExpenseTypesController = require("../controllers/Expenses/ExpenseTypesController");
-const ExpensesController = require("../controllers/Expenses/ExpensesController");
+const ExpensesController = require("../controllers/Expenses/ExpenseController");
 const ProductsController = require("../controllers/Products/ProductsController");
-const PurchasesController = require("../controllers/Purchases/PurchasesController");
+const PurchasesController = require("../controllers/Purches/PurchesController");
+
 const SalesController = require("../controllers/Sales/SalesController");
 const ReturnsController = require("../controllers/Returns/ReturnsController");
 const ReportController = require("../controllers/Report/ReportController");
 const SummaryController = require("../controllers/Summary/SummaryController");
-
+*/
 const router = express.Router();
 
 // User Profile
@@ -24,7 +27,9 @@ router.get("/ProfileDetails", AuthVerifyMiddleware, UsersController.ProfileDetai
 router.get("/RecoverVerifyEmail/:email", UsersController.RecoverVerifyEmail);
 router.get("/RecoverVerifyOTP/:email/:otp", UsersController.RecoverVerifyOTP);
 router.post("/RecoverResetPass", UsersController.RecoverResetPass);
+console.log("UsersController:", UsersController);
 
+/* 
 // Brands
 router.post("/CreateBrand", AuthVerifyMiddleware, BrandsController.CreateBrand);
 router.post("/UpdateBrand/:id", AuthVerifyMiddleware, BrandsController.UpdateBrand);
@@ -106,5 +111,6 @@ router.get("/ExpensesSummary", AuthVerifyMiddleware, SummaryController.ExpensesS
 router.get("/ReturnSummary", AuthVerifyMiddleware, SummaryController.ReturnSummary);
 router.get("/PurchaseSummary", AuthVerifyMiddleware, SummaryController.PurchaseSummary);
 router.get("/SalesSummary", AuthVerifyMiddleware, SummaryController.SalesSummary);
+*/
 
 module.exports = router;

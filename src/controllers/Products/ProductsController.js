@@ -1,15 +1,17 @@
-const DataModel = require("../../models/Products/ProductsModel");
+const DataModel = require("../../models/product/ProductsModel");
 const CreateService = require("../../services/common/CreateService");
 const UpdateService = require("../../services/common/UpdateService");
+
 const ListTwoJoinService = require("../../services/common/ListTwoJoinService");
-const mongoose = require("mongoose");
-const CheckAssociateService = require("../../services/common/CheckAssociateService");
-const SaleProductsModel = require("../../models/Sales/SaleProductsModel");
-const PurchaseProductsModel = require("../../models/Purchases/PurchaseProductsModel");
+const CheckAssociateService = require("../../services/common/CheeckAssociateService");
+const SaleProductsModel = require("../../models/sells/SalesProductsModel");
+
+const PurchaseProductsModel = require("../../models/purches/PurchesProductModel");
 const ReturnProductsModel = require("../../models/Returns/ReturnProductsModel");
 const DeleteService = require("../../services/common/DeleteService");
-const DetailsByIDService = require("../../services/common/DetailsByIDService");
-const DropDownService = require("../../services/common/DropDownService");
+
+const DetailsByIDService = require("../../services/common/DetailsByID");
+const DropDownService = require("../../services/common/DrowpDownService");
 
 
 exports.CreateProducts=async (req, res) => {

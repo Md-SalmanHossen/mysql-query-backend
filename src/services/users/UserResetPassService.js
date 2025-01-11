@@ -1,4 +1,4 @@
-const db = require('../config/db');
+const db = require('../../config/db');
 
 const UserResetPassService = async (Request) => {
     const { email, OTP, password } = Request.body;

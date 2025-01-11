@@ -1,8 +1,8 @@
-const PurchaseProductsModel = require("../../models/Purchases/PurchaseProductsModel"); // Your PurchaseProducts model
-const ProductModel = require("../../models/Products/ProductModel");  // Your Product model
-const BrandModel = require("../../models/Brands/BrandModel");  // Your Brand model
-const CategoryModel = require("../../models/Categories/CategoryModel");  // Your Category model
-const sequelize = require("sequelize"); // Sequelize for MySQL queries
+const PurchaseProductsModel = require("../../models/purches/PurchesProductModel"); 
+const ProductModel = require("../../models/product/ProductsModel");  
+const BrandModel = require("../../models/brands/BrandsModel");  
+const CategoryModel = require("../../models/category/CategoriesModel");  
+const sequelize = require("sequelize"); 
 
 const PurchasesReportService = async (Request) => {
     try {

@@ -1,5 +1,5 @@
 module.exports = {
-   createTableQuery: `
+   createBrandTable: `
      CREATE TABLE IF NOT EXISTS brands (
        id INT AUTO_INCREMENT PRIMARY KEY,
        UserEmail VARCHAR(255),

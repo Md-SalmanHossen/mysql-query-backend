@@ -1,5 +1,5 @@
 module.exports = {
-   createTableQuery: `
+   createSupplierTable: `
      CREATE TABLE IF NOT EXISTS suppliers (
        id INT AUTO_INCREMENT PRIMARY KEY,
        UserEmail VARCHAR(255),

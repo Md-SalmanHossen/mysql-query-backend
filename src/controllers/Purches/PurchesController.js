@@ -1,5 +1,5 @@
-const ParentModel = require("../../models/Purchases/PurchasesModel");
-const ChildsModel = require("../../models/Purchases/PurchaseProductsModel");
+const ParentModel = require("../../models/purches/PurchesModel");
+const ChildsModel = require("../../models/purches/PurchesProductModel");
 const CreateParentChildsService = require("../../services/common/CreateParentChildsService");
 const ListOneJoinService = require("../../services/common/ListOneJoinService");
 const DeleteParentChildsService = require("../../services/common/DeleteParentChildsService");

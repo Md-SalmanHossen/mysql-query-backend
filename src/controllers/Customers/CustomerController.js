@@ -1,11 +1,12 @@
-const DataModel = require("../../models/Customers/CustomersModel");
+const DataModel = require("../../models/customer/CustomersModel");
 const CreateService = require("../../services/common/CreateService");
 const UpdateService = require("../../services/common/UpdateService");
 const ListService = require("../../services/common/ListService");
-const DropDownService = require("../../services/common/DropDownService");
+
+const DropDownService = require("../../services/common/DrowpDownService");
 const db = require("../../config/db"); // Assuming you have a configured MySQL connection
 const DeleteService = require("../../services/common/DeleteService");
-const DetailsByIDService = require("../../services/common/DetailsByIDService");
+const DetailsByIdService = require("../../services/common/DetailsByID.js");
 
 exports.CreateCustomers = async (req, res) => {
     let Result = await CreateService(req, DataModel);

@@ -1,7 +1,7 @@
-const SaleProductsModel = require("../../models/Sales/SaleProductsModel"); // Your SaleProducts model
-const ProductModel = require("../../models/Products/ProductModel");  // Your Product model
-const BrandModel = require("../../models/Brands/BrandModel");  // Your Brand model
-const CategoryModel = require("../../models/Categories/CategoryModel");  // Your Category model
+const SaleProductsModel = require("../../models/sells/SalesProductsModel"); // Your SaleProducts model
+const ProductModel = require("../../models/product/ProductsModel");  // Your Product model
+const BrandModel = require("../../models/brands/BrandsModel");  // Your Brand model
+const CategoryModel = require("../../models/category/CategoriesModel");  // Your Category model
 const sequelize = require("sequelize"); // Sequelize for MySQL queries
 
 const SalesReportService = async (Request) => {

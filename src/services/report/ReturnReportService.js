@@ -1,7 +1,7 @@
-const ReturnProductsModel = require("../../models/Returns/ReturnProductsModel"); // Your ReturnProducts model
-const ProductModel = require("../../models/Products/ProductModel");  // Your Product model
-const BrandModel = require("../../models/Brands/BrandModel");  // Your Brand model
-const CategoryModel = require("../../models/Categories/CategoryModel");  // Your Category model
+const ReturnProductsModel = require("../../models/returns/ReturnProductsModel"); // Your ReturnProducts model
+const ProductModel = require("../../models/product/ProductsModel");  // Your Product model
+const BrandModel = require("../../models/brands/BrandsModel");  // Your Brand model
+const CategoryModel = require("../../models/category/CategoriesModel");  // Your Category model
 const sequelize = require("sequelize"); // Sequelize for MySQL queries
 
 const ReturnReportService = async (Request) => {

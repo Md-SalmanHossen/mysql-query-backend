@@ -1,5 +1,5 @@
 module.exports = {
-   createTableQuery: `
+   createReturnTable: `
      CREATE TABLE IF NOT EXISTS returns (
        id INT AUTO_INCREMENT PRIMARY KEY,
        UserEmail VARCHAR(255),

@@ -1,5 +1,5 @@
 module.exports = {
-   createTableQuery: `
+   createCategoryTable: `
      CREATE TABLE IF NOT EXISTS categories (
        id INT AUTO_INCREMENT PRIMARY KEY,
        UserEmail VARCHAR(255),
