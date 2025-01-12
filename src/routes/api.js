@@ -1,8 +1,9 @@
 const express = require('express');
 const AuthVerifyMiddleware = require("../middlewares/AuthVerifyMiddleware");
 const UsersController = require("../controllers/Users/UsersController");
-/*const BrandsController = require("../controllers/Brands/BrandsController");
+const BrandsController = require("../controllers/Brands/BrandsController");
 
+/*
 const CategoriesController = require("../controllers/Categories/CategoryController");
 const CustomersController = require("../controllers/Customers/CustomerController");
 const SuppliersController = require("../controllers/Suppliers/SuppliersController");
@@ -27,9 +28,9 @@ router.get("/ProfileDetails", AuthVerifyMiddleware, UsersController.ProfileDetai
 router.get("/RecoverVerifyEmail/:email", UsersController.RecoverVerifyEmail);
 router.get("/RecoverVerifyOTP/:email/:otp", UsersController.RecoverVerifyOTP);
 router.post("/RecoverResetPass", UsersController.RecoverResetPass);
-console.log("UsersController:", UsersController);
+//console.log("UsersController:", UsersController);
 
-/*
+
 // Brands
 router.post("/CreateBrand", AuthVerifyMiddleware, BrandsController.CreateBrand);
 router.post("/UpdateBrand/:id", AuthVerifyMiddleware, BrandsController.UpdateBrand);
@@ -37,6 +38,8 @@ router.get("/BrandList/:pageNo/:perPage/:searchKeyword", AuthVerifyMiddleware, B
 router.get("/BrandDropDown", AuthVerifyMiddleware, BrandsController.BrandDropDown);
 router.get("/DeleteBrand/:id", AuthVerifyMiddleware, BrandsController.DeleteBrand);
 router.get("/BrandDetailsByID/:id", AuthVerifyMiddleware, BrandsController.BrandDetailsByID);
+//console.log("brand controller",BrandsController)
+/*
 
 // Categories
 router.post("/CreateCategories", AuthVerifyMiddleware, CategoriesController.CreateCategories);

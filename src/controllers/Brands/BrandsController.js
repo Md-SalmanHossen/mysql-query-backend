@@ -1,89 +1,74 @@
-const DataModel = require("../../models/Brands/BrandsModel");
+const BrandsModel = require("../../models/brands/BrandsModel");
 const ProductsModel = require("../../models/product/ProductsModel");
 const CreateService = require("../../services/common/CreateService");
 const UpdateService = require("../../services/common/UpdateService");
 const ListService = require("../../services/common/ListService");
 const DropDownService = require("../../services/common/DrowpDownService");
-const db = require("../../config/db"); // MySQL database connection
-const mysql = require("mysql2/promise");
+const CheckAssociateService = require("../../services/common/CheeckAssociateService");
 const DeleteService = require("../../services/common/DeleteService");
 const DetailsByIDService = require("../../services/common/DetailsByID");
 
 exports.CreateBrand = async (req, res) => {
     try {
-        let Result = await CreateService(req, DataModel);
-        res.status(200).json(Result);
+        const result = await CreateService(req.body, BrandsModel.tableName);
+        res.status(200).json(result);
     } catch (err) {
-        res.status(500).json({ status: 'error', message: err.message });
+        res.status(500).json({ status: "error", message: err.message });
     }
 };
 
 exports.UpdateBrand = async (req, res) => {
     try {
-        let Result = await UpdateService(req, DataModel);
-        res.status(200).json(Result);
+        const result = await UpdateService(req.body, BrandsModel.tableName);
+        res.status(200).json(result);
     } catch (err) {
-        res.status(500).json({ status: 'error', message: err.message });
+        res.status(500).json({ status: "error", message: err.message });
     }
 };
 
 exports.BrandList = async (req, res) => {
-    const { searchKeyword } = req.params;
-    const SearchRgx = `%${searchKeyword}%`; // MySQL LIKE syntax for searching
-
     try {
-        // SQL query to search brands by the Name field
-        const query = `
-            SELECT * FROM ${DataModel.tableName}
-            WHERE Name LIKE ?
-        `;
-
-        // Execute the query with parameters
-        const [rows] = await db.query(query, [SearchRgx]);
-        res.status(200).json(rows);
+        const result = await ListService(req.params.searchKeyword, BrandsModel.tableName);
+        res.status(200).json(result);
     } catch (err) {
-        res.status(500).json({ status: 'error', message: err.message });
-    }
-};
-
-exports.BrandDropDown = async (req, res) => {
-    try {
-        const query = `SELECT _id, Name FROM ${DataModel.tableName}`;
-        const [rows] = await db.query(query);
-        res.status(200).json(rows);
-    } catch (err) {
-        res.status(500).json({ status: 'error', message: err.message });
+        res.status(500).json({ status: "error", message: err.message });
     }
 };
 
 exports.BrandDetailsByID = async (req, res) => {
     try {
-        let Result = await DetailsByIDService(req, DataModel);
-        res.status(200).json(Result);
+        const result = await DetailsByIDService(req.params.id, BrandsModel.tableName);
+        res.status(200).json(result);
     } catch (err) {
-        res.status(500).json({ status: 'error', message: err.message });
+        res.status(500).json({ status: "error", message: err.message });
+    }
+};
+
+exports.BrandDropDown = async (req, res) => {
+    try {
+        const result = await DropDownService(BrandsModel.tableName, ["id", "Name"]);
+        res.status(200).json(result);
+    } catch (err) {
+        res.status(500).json({ status: "error", message: err.message });
     }
 };
 
 exports.DeleteBrand = async (req, res) => {
-    const DeleteID = req.params.id;
-
     try {
-        // Check if the brand is associated with any products
-        const checkAssocQuery = `
-            SELECT * FROM ${ProductsModel.tableName} WHERE BrandID = ?
-        `;
-        const [productData] = await db.query(checkAssocQuery, [DeleteID]);
+        const isAssociated = await CheckAssociateService(
+            { BrandID: req.params.id },
+            ProductsModel.tableName
+        );
 
-        if (productData.length > 0) {
-            // If associated with products, respond with an error message
-            res.status(200).json({ status: "associate", data: "Associate with Product" });
-        } else {
-            // If no association, delete the brand
-            const result = await DeleteService(req, DataModel);
-            res.status(200).json(result);
+        if (isAssociated) {
+            return res
+                .status(409)
+                .json({ status: "associate", message: "Brand is associated with products" });
         }
+
+        const result = await DeleteService(req.params.id, BrandsModel.tableName);
+        res.status(200).json(result);
     } catch (err) {
-        res.status(500).json({ status: 'error', message: err.message });
+        res.status(500).json({ status: "error", message: err.message });
     }
 };
