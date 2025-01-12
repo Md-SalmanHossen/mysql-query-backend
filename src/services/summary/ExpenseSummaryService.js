@@ -1,42 +1,56 @@
-const ExpensesModel = require("../../models/expense/ExpenseModel");  // Your Expenses model
-const sequelize = require("sequelize");  // Sequelize for MySQL queries
+const db = require("../../config/db.js");
 
 const ExpenseSummaryService = async (Request) => {
     try {
-        let UserEmail = Request.headers['email'];
+        const UserEmail = Request.headers['email'];
 
-        // Fetch total expense amount from the Expenses table for the given UserEmail
-        const totalExpenseAmount = await ExpensesModel.sum('Amount', {
-            where: { UserEmail: UserEmail },
-        });
+        if (!UserEmail) {
+            return { status: "fail", message: "Email header is required" };
+        }
 
-        // Fetch the last 30 days of expenses, grouped by date
-        const last30DaysExpenses = await ExpensesModel.findAll({
-            attributes: [
-                [sequelize.fn('DATE_FORMAT', sequelize.col('CreatedDate'), '%Y-%m-%d'), 'Date'],  // Group by date
-                [sequelize.fn('SUM', sequelize.col('Amount')), 'TotalAmount']
-            ],
-            where: {
-                UserEmail: UserEmail,
-                CreatedDate: {
-                    [sequelize.Op.gte]: sequelize.fn('NOW', sequelize.literal('INTERVAL 30 DAY')),  // Filter for the last 30 days
-                }
-            },
-            group: [sequelize.fn('DATE_FORMAT', sequelize.col('CreatedDate'), '%Y-%m-%d')],  // Group by formatted date
-            order: [[sequelize.fn('DATE_FORMAT', sequelize.col('CreatedDate'), '%Y-%m-%d'), 'DESC']],  // Sort by date descending
-            limit: 30  // Limit to the last 30 days
-        });
+        // Query for total expense amount
+        const totalExpenseQuery = `
+            SELECT SUM(Amount) AS totalExpenseAmount 
+            FROM expenses 
+            WHERE UserEmail = ?;
+        `;
+        const [totalExpenseResult] = await db.execute(totalExpenseQuery, [UserEmail]);
+        const totalExpenseAmount = totalExpenseResult[0]?.totalExpenseAmount || 0;
+
+        // Query for last 30 days' expenses grouped by date
+        const last30DaysExpensesQuery = `
+            SELECT 
+                DATE(CreatedDate) AS Date,
+                SUM(Amount) AS TotalAmount
+            FROM expenses
+            WHERE UserEmail = ? 
+              AND CreatedDate >= NOW() - INTERVAL 30 DAY
+            GROUP BY DATE(CreatedDate)
+            ORDER BY Date DESC
+            LIMIT 30;
+        `;
+        const [last30DaysExpenses] = await db.execute(last30DaysExpensesQuery, [UserEmail]);
+
+        // Metadata Query: Total number of days with expenses
+        const totalDaysQuery = `
+            SELECT COUNT(DISTINCT DATE(CreatedDate)) AS totalDays 
+            FROM expenses 
+            WHERE UserEmail = ?;
+        `;
+        const [totalDaysResult] = await db.execute(totalDaysQuery, [UserEmail]);
+        const totalDays = totalDaysResult[0]?.totalDays || 0;
 
         return {
             status: "success",
             data: {
                 totalExpenseAmount,
-                last30DaysExpenses
-            }
+                last30DaysExpenses,
+                totalDays,
+            },
         };
-
     } catch (error) {
-        return { status: "fail", data: error.toString() };
+        console.error(error); // Log error for debugging
+        return { status: "fail", message: "An error occurred while fetching expense summary", data: error.toString() };
     }
 };
 

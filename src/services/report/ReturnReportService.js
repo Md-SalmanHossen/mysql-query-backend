@@ -1,70 +1,56 @@
-const ReturnProductsModel = require("../../models/returns/ReturnProductsModel"); // Your ReturnProducts model
-const ProductModel = require("../../models/product/ProductsModel");  // Your Product model
-const BrandModel = require("../../models/brands/BrandsModel");  // Your Brand model
-const CategoryModel = require("../../models/category/CategoriesModel");  // Your Category model
-const sequelize = require("sequelize"); // Sequelize for MySQL queries
+const db = require('../../config/db.js');
 
 const ReturnReportService = async (Request) => {
     try {
-        let UserEmail = Request.headers['email'];
-        let FormDate = Request.body['FormDate'];
-        let ToDate = Request.body['ToDate'];
+        const UserEmail = Request.headers['email'];
+        const FormDate = Request.body['FormDate'];
+        const ToDate = Request.body['ToDate'];
 
-        // Fetch total return amount for the given date range and UserEmail
-        const totalReturnAmount = await ReturnProductsModel.sum('Total', {
-            where: {
-                UserEmail: UserEmail,
-                CreatedDate: {
-                    [sequelize.Op.gte]: new Date(FormDate),
-                    [sequelize.Op.lte]: new Date(ToDate),
-                }
-            }
-        });
+        if (!UserEmail || !FormDate || !ToDate) {
+            return { status: "fail", message: "Email, FormDate, and ToDate are required." };
+        }
 
-        // Fetch return data with product, brand, and category information
-        const returnData = await ReturnProductsModel.findAll({
-            attributes: [
-                'ProductID',
-                'Total',
-                'CreatedDate',
-                [sequelize.fn('DATE_FORMAT', sequelize.col('CreatedDate'), '%Y-%m-%d'), 'FormattedDate'] // Format the date
-            ],
-            where: {
-                UserEmail: UserEmail,
-                CreatedDate: {
-                    [sequelize.Op.gte]: new Date(FormDate),
-                    [sequelize.Op.lte]: new Date(ToDate),
-                }
-            },
-            include: [
-                {
-                    model: ProductModel,
-                    attributes: ['Name', 'BrandID', 'CategoryID'], // Product info
-                    include: [
-                        {
-                            model: BrandModel,
-                            attributes: ['BrandName'],  // Brand info
-                        },
-                        {
-                            model: CategoryModel,
-                            attributes: ['CategoryName'],  // Category info
-                        }
-                    ]
-                }
-            ]
-        });
+        // Query for total return amount for the given date range and UserEmail
+        const totalReturnQuery = `
+            SELECT SUM(rp.Total) AS totalReturnAmount
+            FROM return_products rp
+            WHERE rp.UserEmail = ?
+              AND rp.CreatedDate BETWEEN ? AND ?;
+        `;
+        const [totalReturnResult] = await db.execute(totalReturnQuery, [UserEmail, FormDate, ToDate]);
+        const totalReturnAmount = totalReturnResult[0]?.totalReturnAmount || 0;
+
+        // Query for return data with product, brand, and category information
+        const returnDataQuery = `
+            SELECT 
+                rp.ProductID,
+                rp.Total,
+                rp.CreatedDate,
+                DATE_FORMAT(rp.CreatedDate, '%Y-%m-%d') AS FormattedDate,
+                p.Name AS ProductName,
+                b.BrandName,
+                c.CategoryName
+            FROM return_products rp
+            LEFT JOIN products p ON rp.ProductID = p.ID
+            LEFT JOIN brands b ON p.BrandID = b.ID
+            LEFT JOIN categories c ON p.CategoryID = c.ID
+            WHERE rp.UserEmail = ?
+              AND rp.CreatedDate BETWEEN ? AND ?
+            ORDER BY rp.CreatedDate DESC;
+        `;
+        const [returnData] = await db.execute(returnDataQuery, [UserEmail, FormDate, ToDate]);
 
         // Return the result
         return {
             status: "success",
             data: {
                 totalReturnAmount,
-                returnData
-            }
+                returnData,
+            },
         };
-
     } catch (error) {
-        return { status: "fail", data: error.toString() };
+        console.error(error); // Log error for debugging
+        return { status: "fail", message: "An error occurred while fetching return report", data: error.toString() };
     }
 };
 

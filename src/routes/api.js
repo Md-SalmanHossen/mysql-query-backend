@@ -19,7 +19,7 @@ const SummaryController = require("../controllers/Summary/SummaryController");
 */
 const router = express.Router();
 
-// User Profile
+// User Profile 
 router.post("/Registration", UsersController.Registration);
 router.post("/Login", UsersController.Login);
 router.post("/ProfileUpdate", AuthVerifyMiddleware, UsersController.ProfileUpdate);
@@ -29,7 +29,7 @@ router.get("/RecoverVerifyOTP/:email/:otp", UsersController.RecoverVerifyOTP);
 router.post("/RecoverResetPass", UsersController.RecoverResetPass);
 console.log("UsersController:", UsersController);
 
-/* 
+/*
 // Brands
 router.post("/CreateBrand", AuthVerifyMiddleware, BrandsController.CreateBrand);
 router.post("/UpdateBrand/:id", AuthVerifyMiddleware, BrandsController.UpdateBrand);

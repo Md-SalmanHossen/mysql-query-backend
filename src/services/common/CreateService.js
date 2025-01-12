@@ -1,18 +1,25 @@
-const CreateService = async (Request, DataModel) => {
-   try {
-       // Prepare the data to be inserted
-       let PostBody = Request.body;
-       PostBody.UserEmail = Request.headers['email']; // Add the UserEmail from request headers
+const CreateService = async (Request, tableName) => {
+    try {
+        const db = require("../../config/db"); // Database connection
+        const PostBody = Request.body;
+        PostBody.UserEmail = Request.headers['email']; // Add UserEmail from headers
 
-       // Create the data record using Sequelize's `create` method
-       const data = await DataModel.create(PostBody);
+        const keys = Object.keys(PostBody).join(","); // Create column names from keys
+        const values = Object.values(PostBody); // Values from the PostBody
+        const placeholders = values.map(() => "?").join(","); // Create placeholders for values
 
-       // Return success response with the created data
-       return { status: "success", data: data };
-   } catch (error) {
-       // Return failure response with the error
-       return { status: "fail", data: error.toString() };
-   }
+        // Create the SQL query for inserting data into the specified table
+        const query = `INSERT INTO ${tableName} (${keys}) VALUES (${placeholders})`;
+
+        // Execute the query with the values
+        const [result] = await db.execute(query, values);
+
+        // Return a success response
+        return { status: "success", data: result };
+    } catch (error) {
+        // Return a fail response in case of error
+        return { status: "fail", data: error.message };
+    }
 };
 
 module.exports = CreateService;

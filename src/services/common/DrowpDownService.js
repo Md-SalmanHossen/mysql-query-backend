@@ -1,26 +1,31 @@
-const DropDownService = async (Request, DataModel, Projection) => {
-   try {
-       let UserEmail = Request.headers['email'];
+const db = require("../../config/db"); // Database connection
 
-       // Assuming 'Projection' is an array of fields you want to include
-       let selectedFields = Projection.reduce((acc, field) => {
-           acc[field] = true;
-           return acc;
-       }, {});
+const DropDownService = async (Request, tableName, Projection) => {
+    try {
+        const UserEmail = Request.headers['email'];
 
-       // Fetching data from the database, filtered by UserEmail
-       let data = await DataModel.findAll({
-           where: {
-               UserEmail: UserEmail
-           },
-           attributes: Object.keys(selectedFields),  // Project specific fields
-       });
+        // Ensure Projection is an array and join the fields properly for the SQL query
+        if (!Array.isArray(Projection)) {
+            return { status: "fail", data: "Projection should be an array of fields." };
+        }
 
-       return { status: "success", data: data };
+        const fields = Projection.join(",");  // Convert array to comma-separated string for SQL
+        const query = `SELECT ${fields} FROM ${tableName} WHERE UserEmail = ?`;
 
-   } catch (error) {
-       return { status: "fail", data: error.toString() };
-   }
+        // Execute query to fetch the dropdown data
+        const [rows] = await db.execute(query, [UserEmail]);
+
+        // Check if rows are found
+        if (rows.length === 0) {
+            return { status: "fail", data: "No data found." };
+        }
+
+        return { status: "success", data: rows };
+    } catch (error) {
+        // Log the error for debugging
+        console.error("Error in DropDownService:", error);
+        return { status: "fail", data: error.message };
+    }
 };
 
 module.exports = DropDownService;

@@ -47,70 +47,50 @@ const initializeDatabase = async () => {
     console.log('Database connected successfully!');
 
     // Log and check if queries are defined
-    console.log("Creating Users table:", createTableQuery);
     if (!createTableQuery) throw new Error("createTableQuery is undefined");
     await connection.execute(createTableQuery);
 
-    console.log("Creating Customers table:", createCustomerTable);
     if (!createCustomerTable) throw new Error("createCustomerTable is undefined");
     await connection.execute(createCustomerTable);
 
-    console.log("Creating OTP table:", createOtpTableQuery);
     if (!createOtpTableQuery) throw new Error("createOtpTableQuery is undefined");
     await connection.execute(createOtpTableQuery);
 
-    console.log("Creating Suppliers table:", createSupplierTable);
     if (!createSupplierTable) throw new Error("createSupplierTable is undefined");
     await connection.execute(createSupplierTable);
 
-    console.log("Creating Categories table:", createCategoryTable);
     if (!createCategoryTable) throw new Error("createCategoryTable is undefined");
     await connection.execute(createCategoryTable);
 
-    console.log("Creating Brands table:", createBrandTable);
     if (!createBrandTable) throw new Error("createBrandTable is undefined");
     await connection.execute(createBrandTable);
 
-    console.log("Creating Products table:", createProductTable);
     if (!createProductTable) throw new Error("createProductTable is undefined");
     await connection.execute(createProductTable);
 
-    console.log("Creating Returns table:", createReturnTable);
     if (!createReturnTable) throw new Error("createReturnTable is undefined");
     await connection.execute(createReturnTable);
     
-    console.log("Creating Sales table:", createSalesTable);
     if (!createSalesTable) throw new Error("createSalesTable is undefined");
     await connection.execute(createSalesTable);
 
-    console.log("Creating Sales Products table:", createSalesProduct);
     if (!createSalesProduct) throw new Error("createSalesProduct is undefined");
     await connection.execute(createSalesProduct);
 
-    console.log("Creating Return Products table:", createReturnProductTable);
     if (!createReturnProductTable) throw new Error("createReturnProductTable is undefined");
     await connection.execute(createReturnProductTable);
 
-    
-
-    console.log("Creating Purchases table:", createPurchesTable);
     if (!createPurchesTable) throw new Error("createPurchesTable is undefined");
     await connection.execute(createPurchesTable);
 
-    console.log("Creating Purchase Products table:", createPurchesProduct);
     if (!createPurchesProduct) throw new Error("createPurchesProduct is undefined");
     await connection.execute(createPurchesProduct);
 
-    console.log("Creating Expense Types table:", createExpenseTypes);
     if (!createExpenseTypes) throw new Error("createExpenseTypes is undefined");
     await connection.execute(createExpenseTypes);
 
-    console.log("Creating Expense table:", createExpenseTable);
     if (!createExpenseTable) throw new Error("createExpenseTable is undefined");
     await connection.execute(createExpenseTable);
-
- 
-    console.log("All tables created successfully!");
   } catch (error) {
     console.error("Error during table creation:", error.message);
   } finally {

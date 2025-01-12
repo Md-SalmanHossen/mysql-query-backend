@@ -1,24 +1,32 @@
-const DetailsByIDService = async (Request, DataModel) => {
-   try {
-       let DetailsID = Request.params.id;
-       let UserEmail = Request.headers['email'];
+const db = require("../../config/db"); // Database connection
 
-       // Query object to match based on ID and UserEmail
-       let QueryObject = {};
-       QueryObject.id = DetailsID; // Assuming the primary key is 'id'
-       QueryObject.UserEmail = UserEmail;
+const DetailsByIDService = async (Request, tableName) => {
+    try {
+        const DetailsID = Request.params.id;
+        const UserEmail = Request.headers['email'];
 
-       // Find the record by ID and UserEmail
-       let data = await DataModel.findAll({
-           where: QueryObject,
-       });
+        // Check if the ID is valid
+        if (!DetailsID || isNaN(DetailsID)) {
+            return { status: "fail", data: "Invalid ID parameter." };
+        }
 
-       // Return the result
-       return { status: "success", data: data };
+        // Construct the query to fetch the details by ID and UserEmail
+        const query = `SELECT * FROM ${tableName} WHERE id = ? AND UserEmail = ?`;
 
-   } catch (error) {
-       return { status: "fail", data: error.toString() };
-   }
+        // Execute the query and fetch the result
+        const [rows] = await db.execute(query, [DetailsID, UserEmail]);
+
+        // If no rows found, return an error message
+        if (rows.length === 0) {
+            return { status: "fail", data: "No records found for the given ID and UserEmail." };
+        }
+
+        return { status: "success", data: rows };
+    } catch (error) {
+        // Log the error for debugging
+        console.error("Error in DetailsByIDService:", error);
+        return { status: "fail", data: error.message };
+    }
 };
 
 module.exports = DetailsByIDService;

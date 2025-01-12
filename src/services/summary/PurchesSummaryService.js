@@ -1,42 +1,45 @@
-const PurchasesModel = require("../../models/purches/PurchesModel");  // Your Purchases model
-const sequelize = require("sequelize");  // Sequelize for MySQL queries
+const db = require("../../config/db.js");
 
 const PurchaseSummaryService = async (Request) => {
     try {
-        let UserEmail = Request.headers['email'];
+        const UserEmail = Request.headers['email'];
 
-        // Fetch total purchase amount from the Purchases table for the given UserEmail
-        const totalPurchaseAmount = await PurchasesModel.sum('GrandTotal', {
-            where: { UserEmail: UserEmail },
-        });
+        if (!UserEmail) {
+            return { status: "fail", message: "Email header is required" };
+        }
 
-        // Fetch the last 30 days of purchases, grouped by date
-        const last30DaysPurchases = await PurchasesModel.findAll({
-            attributes: [
-                [sequelize.fn('DATE_FORMAT', sequelize.col('CreatedDate'), '%Y-%m-%d'), 'Date'],  // Group by date
-                [sequelize.fn('SUM', sequelize.col('GrandTotal')), 'TotalAmount']
-            ],
-            where: {
-                UserEmail: UserEmail,
-                CreatedDate: {
-                    [sequelize.Op.gte]: sequelize.fn('NOW', sequelize.literal('INTERVAL 30 DAY')),  // Filter for the last 30 days
-                }
-            },
-            group: [sequelize.fn('DATE_FORMAT', sequelize.col('CreatedDate'), '%Y-%m-%d')],  // Group by formatted date
-            order: [[sequelize.fn('DATE_FORMAT', sequelize.col('CreatedDate'), '%Y-%m-%d'), 'DESC']],  // Sort by date descending
-            limit: 30  // Limit to the last 30 days
-        });
+        // Query for total purchase amount
+        const totalPurchaseQuery = `
+            SELECT SUM(GrandTotal) AS totalPurchaseAmount 
+            FROM purchases 
+            WHERE UserEmail = ?;
+        `;
+        const [totalPurchaseResult] = await db.execute(totalPurchaseQuery, [UserEmail]);
+        const totalPurchaseAmount = totalPurchaseResult[0]?.totalPurchaseAmount || 0;
+
+        // Query for last 30 days' purchases grouped by date
+        const last30DaysPurchasesQuery = `
+            SELECT 
+                DATE(CreatedDate) AS Date,
+                SUM(GrandTotal) AS TotalAmount
+            FROM purchases
+            WHERE UserEmail = ? 
+              AND CreatedDate >= NOW() - INTERVAL 30 DAY
+            GROUP BY DATE(CreatedDate)
+            ORDER BY Date DESC
+            LIMIT 30;
+        `;
+        const [last30DaysPurchases] = await db.execute(last30DaysPurchasesQuery, [UserEmail]);
 
         return {
             status: "success",
             data: {
                 totalPurchaseAmount,
-                last30DaysPurchases
-            }
+                last30DaysPurchases,
+            },
         };
-
     } catch (error) {
-        return { status: "fail", data: error.toString() };
+        return { status: "fail", message: "An error occurred while fetching purchase summary", data: error.toString() };
     }
 };
 

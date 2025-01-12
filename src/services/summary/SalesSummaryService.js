@@ -1,41 +1,46 @@
-const SalesModel = require("../../models/sells/SalesModel");  // Your Sales model
+const db = require("../../config/db.js");
 
 const SalesSummaryService = async (Request) => {
     try {
-        let UserEmail = Request.headers['email'];
-        
-        // Fetch total amount from the Sales table for the given UserEmail
-        const totalAmount = await SalesModel.sum('GrandTotal', {
-            where: { UserEmail: UserEmail },
-        });
+        const UserEmail = Request.headers['email'];
 
-        // Fetch the last 30 days of sales, grouped by date
-        const last30DaysSales = await SalesModel.findAll({
-            attributes: [
-                [sequelize.fn('DATE_FORMAT', sequelize.col('CreatedDate'), '%Y-%m-%d'), 'Date'],  // Group by date
-                [sequelize.fn('SUM', sequelize.col('GrandTotal')), 'TotalAmount']
-            ],
-            where: {
-                UserEmail: UserEmail,
-                CreatedDate: {
-                    [sequelize.Op.gte]: sequelize.fn('NOW', sequelize.literal('INTERVAL 30 DAY')),
-                }
-            },
-            group: [sequelize.fn('DATE_FORMAT', sequelize.col('CreatedDate'), '%Y-%m-%d')],  // Group by formatted date
-            order: [[sequelize.fn('DATE_FORMAT', sequelize.col('CreatedDate'), '%Y-%m-%d'), 'DESC']], // Sort by date descending
-            limit: 30  // Limit to the last 30 days
-        });
+        if (!UserEmail) {
+            return { status: "fail", message: "Email header is required" };
+        }
+
+        // Query for total sales amount
+        const totalSalesQuery = `
+            SELECT SUM(GrandTotal) AS totalAmount 
+            FROM sales 
+            WHERE UserEmail = ?;
+        `;
+        const [totalSalesResult] = await db.execute(totalSalesQuery, [UserEmail]);
+        const totalAmount = totalSalesResult[0]?.totalAmount || 0;
+
+        // Query for last 30 days' sales grouped by date
+        const last30DaysSalesQuery = `
+            SELECT 
+                DATE(CreatedDate) AS Date,
+                SUM(GrandTotal) AS TotalAmount
+            FROM sales
+            WHERE UserEmail = ?
+              AND CreatedDate >= NOW() - INTERVAL 30 DAY
+            GROUP BY DATE(CreatedDate)
+            ORDER BY Date DESC
+            LIMIT 30;
+        `;
+        const [last30DaysSales] = await db.execute(last30DaysSalesQuery, [UserEmail]);
 
         return {
             status: "success",
             data: {
                 totalAmount,
-                last30DaysSales
-            }
+                last30DaysSales,
+            },
         };
-
     } catch (error) {
-        return { status: "fail", data: error.toString() };
+        console.error(error); // Log error for debugging during development
+        return { status: "fail", message: "An error occurred while fetching sales summary", data: error.toString() };
     }
 };
 

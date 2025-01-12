@@ -1,42 +1,46 @@
-const ReturnsModel = require("../../models/Returns/ReturnsModel");  // Your Returns model
-const sequelize = require("sequelize");  // Sequelize for MySQL queries
+const db = require("../../config/db.js");
 
 const ReturnSummaryService = async (Request) => {
     try {
-        let UserEmail = Request.headers['email'];
+        const UserEmail = Request.headers['email'];
 
-        // Fetch total return amount from the Returns table for the given UserEmail
-        const totalReturnAmount = await ReturnsModel.sum('GrandTotal', {
-            where: { UserEmail: UserEmail },
-        });
+        if (!UserEmail) {
+            return { status: "fail", message: "Email header is required" };
+        }
 
-        // Fetch the last 30 days of returns, grouped by date
-        const last30DaysReturns = await ReturnsModel.findAll({
-            attributes: [
-                [sequelize.fn('DATE_FORMAT', sequelize.col('CreatedDate'), '%Y-%m-%d'), 'Date'],  // Group by date
-                [sequelize.fn('SUM', sequelize.col('GrandTotal')), 'TotalAmount']
-            ],
-            where: {
-                UserEmail: UserEmail,
-                CreatedDate: {
-                    [sequelize.Op.gte]: sequelize.fn('NOW', sequelize.literal('INTERVAL 30 DAY')),  // Filter for the last 30 days
-                }
-            },
-            group: [sequelize.fn('DATE_FORMAT', sequelize.col('CreatedDate'), '%Y-%m-%d')],  // Group by formatted date
-            order: [[sequelize.fn('DATE_FORMAT', sequelize.col('CreatedDate'), '%Y-%m-%d'), 'DESC']],  // Sort by date descending
-            limit: 30  // Limit to the last 30 days
-        });
+        // Query for total return amount
+        const totalReturnAmountQuery = `
+            SELECT SUM(GrandTotal) AS totalReturnAmount 
+            FROM returns 
+            WHERE UserEmail = ?;
+        `;
+        const [totalReturnAmountResult] = await db.execute(totalReturnAmountQuery, [UserEmail]);
+        const totalReturnAmount = totalReturnAmountResult[0]?.totalReturnAmount || 0;
+
+        // Query for last 30 days' returns grouped by date
+        const last30DaysReturnsQuery = `
+            SELECT 
+                DATE(CreatedDate) AS Date,
+                SUM(GrandTotal) AS TotalAmount
+            FROM returns
+            WHERE UserEmail = ?
+              AND CreatedDate >= NOW() - INTERVAL 30 DAY
+            GROUP BY DATE(CreatedDate)
+            ORDER BY Date DESC
+            LIMIT 30;
+        `;
+        const [last30DaysReturns] = await db.execute(last30DaysReturnsQuery, [UserEmail]);
 
         return {
             status: "success",
             data: {
                 totalReturnAmount,
-                last30DaysReturns
-            }
+                last30DaysReturns,
+            },
         };
-
     } catch (error) {
-        return { status: "fail", data: error.toString() };
+        console.error(error); // Log error for debugging
+        return { status: "fail", message: "An error occurred while fetching return summary", data: error.toString() };
     }
 };
 

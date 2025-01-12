@@ -3,11 +3,25 @@ const db = require('../../config/db');
 const UserDetailsService = async (Request) => {
     try {
         const email = Request.headers['email'];
-        const sql = `SELECT * FROM users WHERE email = ?`;
+
+        if (!email) {
+            return { status: "fail", message: "Email header is required" };
+        }
+
+        const sql = `
+            SELECT id, email, firstName, lastName, mobile, photo, created_at, updated_at 
+            FROM users 
+            WHERE email = ?
+        `;
         const [rows] = await db.execute(sql, [email]);
-        return { status: "success", data: rows };
+
+        if (rows.length > 0) {
+            return { status: "success", data: rows[0] };
+        } else {
+            return { status: "fail", message: "User not found" };
+        }
     } catch (error) {
-        return { status: "fail", data: error.toString() };
+        return { status: "fail", message: "An error occurred while fetching user details", data: error.toString() };
     }
 };
 

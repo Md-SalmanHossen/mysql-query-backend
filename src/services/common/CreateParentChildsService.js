@@ -1,32 +1,49 @@
-const { Op } = require("sequelize");
+const db = require("../../config/db"); // Database connection
 
-const CreateParentChildsService = async (Request, ParentModel, ChildsModel, JoinPropertyName) => {
-    // Start a Sequelize transaction
-    const t = await ParentModel.sequelize.transaction();
+const CreateParentChildsService = async (Request, ParentTableName, ChildTableName, JoinPropertyName) => {
+    let transaction;
 
     try {
-        // First Database Process (Parent Creation)
-        let Parent = Request.body['Parent'];
-        Parent.UserEmail = Request.headers['email'];
-        const ParentCreation = await ParentModel.create(Parent, { transaction: t });
+        // Start a transaction
+        transaction = await db.getConnection(); // Get a DB connection to start transaction
+        await transaction.beginTransaction();
 
-        // Second Database Process (Child Creation)
-        let Childs = Request.body['Childs'];
-        Childs.forEach(element => {
-            element[JoinPropertyName] = ParentCreation.id; // Assuming id is the primary key for ParentModel
-            element.UserEmail = Request.headers['email'];
-        });
+        // Extract parent and child data from the request body
+        const Parent = { ...Request.body['Parent'], UserEmail: Request.headers['email'] };
 
-        const ChildsCreation = await ChildsModel.bulkCreate(Childs, { transaction: t });
+        // Prepare the parent insert query
+        const parentKeys = Object.keys(Parent).join(",");
+        const parentValues = Object.values(Parent);
+        const parentPlaceholders = parentValues.map(() => "?").join(",");
+        
+        const parentQuery = `INSERT INTO ${ParentTableName} (${parentKeys}) VALUES (${parentPlaceholders})`;
+        const [parentResult] = await transaction.execute(parentQuery, parentValues);
 
-        // Commit Transaction if everything is successful
-        await t.commit();
+        // Prepare the child records and link to the parent ID
+        const Childs = Request.body['Childs'].map((child) => ({
+            ...child,
+            [JoinPropertyName]: parentResult.insertId, // Use the parent's inserted ID
+            UserEmail: Request.headers['email'],
+        }));
 
-        return { status: "success", Parent: ParentCreation, Childs: ChildsCreation };
+        // Insert child records in bulk
+        const childKeys = Object.keys(Childs[0]).join(",");
+        const childPlaceholders = Childs.map(() => `(${Object.keys(Childs[0]).map(() => "?").join(",")})`).join(",");
+        const childValues = Childs.flatMap(child => Object.values(child));
+
+        const childQuery = `INSERT INTO ${ChildTableName} (${childKeys}) VALUES ${childPlaceholders}`;
+        await transaction.execute(childQuery, childValues);
+
+        // Commit the transaction
+        await transaction.commit();
+
+        return { status: "success", Parent: parentResult, Childs: childResult };
     } catch (error) {
         // Rollback the transaction if an error occurs
-        await t.rollback();
-        return { status: "fail", data: error.toString() };
+        if (transaction) await transaction.rollback();
+        return { status: "fail", message: error.message };
+    } finally {
+        if (transaction) await transaction.release();
     }
 };
 

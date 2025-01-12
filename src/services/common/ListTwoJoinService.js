@@ -1,49 +1,43 @@
-const { Op } = require("sequelize");
-
-const ListTwoJoinService = async (Request, DataModel, SearchArray, JoinStage1, JoinStage2) => {
+const ListService = async (Request, tableName, SearchFields) => {
     try {
-        let pageNo = Number(Request.params.pageNo);
-        let perPage = Number(Request.params.perPage);
-        let searchValue = Request.params.searchKeyword;
-        let UserEmail = Request.headers['email'];
-        let skipRow = (pageNo - 1) * perPage;
+        const db = require("../../config/db");
+        const pageNo = Number(Request.params.pageNo);
+        const perPage = Number(Request.params.perPage);
+        const searchValue = Request.params.searchKeyword;
+        const UserEmail = Request.headers['email'];
+        const offset = (pageNo - 1) * perPage;
 
-        let whereConditions = {
-            UserEmail: UserEmail,
-        };
-
-        // If a search value is provided, create search conditions using Sequelize
+        let searchQuery = "";
         if (searchValue !== "0") {
-            whereConditions[Op.or] = SearchArray.map(search => {
-                return {
-                    [Op.like]: `%${searchValue}%`
-                };
-            });
+            searchQuery = SearchFields.map((field) => `${field} LIKE ?`).join(" OR ");
         }
 
-        // Fetching paginated results with two joins
-        let data = await DataModel.findAndCountAll({
-            where: whereConditions,
-            include: [
-                JoinStage1,   // First join stage
-                JoinStage2,   // Second join stage
-            ],
-            offset: skipRow,
-            limit: perPage,
-            distinct: true,  // Ensures that the count reflects unique results
-            raw: false,      // Retrieve model instances, not plain data
-        });
+        const baseQuery = `SELECT * FROM ${tableName} WHERE UserEmail = ?`;
+        const countQuery = `SELECT COUNT(*) AS Total FROM ${tableName} WHERE UserEmail = ?`;
+
+        const whereClause = searchQuery ? ` AND (${searchQuery})` : "";
+        const finalQuery = `${baseQuery}${whereClause} LIMIT ? OFFSET ?`;
+
+        const values = [
+            UserEmail,
+            ...Array(SearchFields.length).fill(`%${searchValue}%`),
+            perPage,
+            offset,
+        ];
+
+        const [rows] = await db.execute(finalQuery, values);
+        const [totalCount] = await db.execute(countQuery, [UserEmail]);
 
         return {
             status: "success",
             data: {
-                Total: data.count,
-                Rows: data.rows,
-            }
+                Total: totalCount[0].Total,
+                Rows: rows,
+            },
         };
     } catch (error) {
-        return { status: "fail", data: error.toString() };
+        return { status: "fail", data: error.message };
     }
 };
 
-module.exports = ListTwoJoinService;
+module.exports = ListService;

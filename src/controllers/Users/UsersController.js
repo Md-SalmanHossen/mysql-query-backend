@@ -12,7 +12,7 @@ const UserVerifyEmailService = require("../../services/users/UserVerifyEmailServ
 
 
 exports.Registration = async (req, res) => {
-    console.log(req.body);
+    //console.log(req.body);
     let result = await UserCreateService(req,  DataModel);
     res.status(200).json(result);
 };
@@ -38,7 +38,7 @@ exports.RecoverVerifyEmail = async (req, res) => {
 };
 
 exports.RecoverVerifyOTP = async (req, res) => {
-    let result = await UserVerifyOtpService(req,  DataModel);
+    let result = await UserVerifyOtpService(req,  OTPSModel);
     res.status(200).json(result);
 };
 
