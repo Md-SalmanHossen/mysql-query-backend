@@ -2,75 +2,75 @@ const DataModel = require("../../models/customer/CustomersModel");
 const CreateService = require("../../services/common/CreateService");
 const UpdateService = require("../../services/common/UpdateService");
 const ListService = require("../../services/common/ListService");
-
 const DropDownService = require("../../services/common/DrowpDownService");
-const db = require("../../config/db"); // Assuming you have a configured MySQL connection
 const DeleteService = require("../../services/common/DeleteService");
-const DetailsByIdService = require("../../services/common/DetailsByID.js");
+const DetailsByIDService = require("../../services/common/DetailsByID");
+const db = require("../../config/db"); // MySQL database connection
 
 exports.CreateCustomers = async (req, res) => {
-    let Result = await CreateService(req, DataModel);
-    res.status(200).json(Result);
-}
+    try {
+        const result = await CreateService(req.body, DataModel.tableName);
+        res.status(200).json(result);
+    } catch (err) {
+        res.status(500).json({ status: "error", message: err.message });
+    }
+};
 
 exports.UpdateCustomers = async (req, res) => {
-    let Result = await UpdateService(req, DataModel);
-    res.status(200).json(Result);
-}
+    try {
+        const result = await UpdateService(req.body, DataModel.tableName);
+        res.status(200).json(result);
+    } catch (err) {
+        res.status(500).json({ status: "error", message: err.message });
+    }
+};
 
 exports.CustomersList = async (req, res) => {
     const { searchKeyword } = req.params;
-    const SearchRgx = `%${searchKeyword}%`; // MySQL LIKE syntax for searching
-    
+    const searchPattern = `%${searchKeyword}%`; // MySQL LIKE syntax for searching
+
     try {
-        // SQL query to search customers by multiple fields and match with LIKE
         const query = `
-            SELECT * FROM ${DataModel.tableName} AS customers
-            WHERE customers.CustomerName LIKE ? OR customers.Phone LIKE ? OR customers.Email LIKE ? OR customers.Address LIKE ?
+            SELECT * FROM ${DataModel.tableName}
+            WHERE CustomerName LIKE ? OR Phone LIKE ? OR Email LIKE ? OR Address LIKE ?
         `;
-        
-        // Execute query with parameters
-        const [rows] = await db.query(query, [SearchRgx, SearchRgx, SearchRgx, SearchRgx]);
+        const [rows] = await db.query(query, [searchPattern, searchPattern, searchPattern, searchPattern]);
         res.status(200).json(rows);
     } catch (err) {
-        res.status(500).json({ status: 'error', message: err.message });
+        res.status(500).json({ status: "error", message: err.message });
     }
-}
+};
 
 exports.CustomersDropDown = async (req, res) => {
     try {
-        const query = `SELECT _id, CustomerName FROM ${DataModel.tableName}`;
-        const [rows] = await db.query(query);
-        res.status(200).json(rows);
+        const result = await DropDownService(DataModel.tableName, ["id", "CustomerName"]);
+        res.status(200).json(result);
     } catch (err) {
-        res.status(500).json({ status: 'error', message: err.message });
+        res.status(500).json({ status: "error", message: err.message });
     }
-}
+};
 
 exports.CustomersDetailsByID = async (req, res) => {
-    let Result = await DetailsByIDService(req, DataModel);
-    res.status(200).json(Result);
-}
+    try {
+        const result = await DetailsByIDService(req.params.id, DataModel.tableName);
+        res.status(200).json(result);
+    } catch (err) {
+        res.status(500).json({ status: "error", message: err.message });
+    }
+};
 
 exports.DeleteCustomer = async (req, res) => {
-    const DeleteID = req.params.id;
-
     try {
-        // Check if the customer is associated with any sales
-        const checkAssocQuery = `
-            SELECT * FROM sales WHERE CustomerID = ?
-        `;
-        const [salesData] = await db.query(checkAssocQuery, [DeleteID]);
+        const checkAssocQuery = `SELECT * FROM sales WHERE CustomerID = ?`;
+        const [salesData] = await db.query(checkAssocQuery, [req.params.id]);
 
         if (salesData.length > 0) {
-            // If associated with sales, respond with an error message
-            res.status(200).json({ status: "associate", data: "Associate with Sales" });
+            res.status(409).json({ status: "associate", message: "Customer is associated with sales" });
         } else {
-            // If no association, delete the customer
-            const result = await DeleteService(req, DataModel);
+            const result = await DeleteService(req.params.id, DataModel.tableName);
             res.status(200).json(result);
         }
     } catch (err) {
-        res.status(500).json({ status: 'error', message: err.message });
+        res.status(500).json({ status: "error", message: err.message });
     }
-}
+};
