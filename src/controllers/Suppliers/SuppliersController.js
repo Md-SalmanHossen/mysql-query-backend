@@ -1,55 +1,68 @@
-const DataModel = require("../../models/Suppliers/SuppliersModel");
+const SuppliersModel = require("../../models/Suppliers/SuppliersModel");
 const CreateService = require("../../services/common/CreateService");
 const UpdateService = require("../../services/common/UpdateService");
-
 const ListService = require("../../services/common/ListService");
 const DropDownService = require("../../services/common/DrowpDownService");
-const CheckAssociateService = require("../../services/common/CheeckAssociateService");
-
-const PurchasesModel = require("../../models/purches/PurchesModel");
-const DeleteService = require("../../services/common/DeleteService");
 const DetailsByIDService = require("../../services/common/DetailsByID");
-
-const db = require("../../config/db"); // Assuming db connection is defined
+const CheckAssociateService = require("../../services/common/CheeckAssociateService");
+const DeleteService = require("../../services/common/DeleteService");
 
 exports.CreateSuppliers = async (req, res) => {
-    let result = await CreateService(req, db, 'suppliers');
-    res.status(200).json(result);
-}
+    try {
+        const result = await CreateService(req.body, SuppliersModel.tableName);
+        res.status(200).json(result);
+    } catch (err) {
+        res.status(500).json({ status: "error", message: err.message });
+    }
+};
 
 exports.UpdateSuppliers = async (req, res) => {
-    let result = await UpdateService(req, db, 'suppliers');
-    res.status(200).json(result);
-}
+    try {
+        const result = await UpdateService(req.body, SuppliersModel.tableName);
+        res.status(200).json(result);
+    } catch (err) {
+        res.status(500).json({ status: "error", message: err.message });
+    }
+};
 
 exports.SuppliersList = async (req, res) => {
-    let searchKeyword = req.params.searchKeyword;
-    let query = `SELECT * FROM suppliers WHERE Name LIKE ? OR Phone LIKE ? OR Email LIKE ? OR Address LIKE ?`;
-    let result = await db.query(query, [`%${searchKeyword}%`, `%${searchKeyword}%`, `%${searchKeyword}%`, `%${searchKeyword}%`]);
-    res.status(200).json(result[0]);
-}
+    try {
+        const result = await ListService(req.params.searchKeyword, SuppliersModel.tableName, ["Name", "Phone", "Email", "Address"]);
+        res.status(200).json(result);
+    } catch (err) {
+        res.status(500).json({ status: "error", message: err.message });
+    }
+};
 
 exports.SuppliersDropDown = async (req, res) => {
-    let query = `SELECT _id, Name FROM suppliers`;
-    let result = await db.query(query);
-    res.status(200).json(result[0]);
-}
+    try {
+        const result = await DropDownService(SuppliersModel.tableName, ["id", "Name"]);
+        res.status(200).json(result);
+    } catch (err) {
+        res.status(500).json({ status: "error", message: err.message });
+    }
+};
 
 exports.SuppliersDetailsByID = async (req, res) => {
-    let query = `SELECT * FROM suppliers WHERE _id = ?`;
-    let result = await db.query(query, [req.params.id]);
-    res.status(200).json(result[0]);
-}
+    try {
+        const result = await DetailsByIDService(req.params.id, SuppliersModel.tableName);
+        res.status(200).json(result);
+    } catch (err) {
+        res.status(500).json({ status: "error", message: err.message });
+    }
+};
 
 exports.DeleteSupplier = async (req, res) => {
-    let deleteID = req.params.id;
-    let queryCheck = `SELECT * FROM purchases WHERE SupplierID = ?`;
-    let checkAssociate = await db.query(queryCheck, [deleteID]);
+    try {
+        const isAssociated = await CheckAssociateService(req.params.id, "purchases", "SupplierID");
 
-    if (checkAssociate[0].length > 0) {
-        res.status(200).json({ status: "associate", data: "Associate with Purchases" });
-    } else {
-        let result = await DeleteService(req, db, 'suppliers');
-        res.status(200).json(result);
+        if (isAssociated) {
+            res.status(409).json({ status: "error", message: "Supplier is associated with purchases" });
+        } else {
+            const result = await DeleteService(req.params.id, SuppliersModel.tableName);
+            res.status(200).json(result);
+        }
+    } catch (err) {
+        res.status(500).json({ status: "error", message: err.message });
     }
-}
+};

@@ -7,8 +7,8 @@ const CategoriesController = require("../controllers/Categories/CategoryControll
 
 const CustomersController = require("../controllers/Customers/CustomerController");
 const SuppliersController = require("../controllers/Suppliers/SuppliersController");
-/*const ExpenseTypesController = require("../controllers/Expenses/ExpenseTypesController");
-const ExpensesController = require("../controllers/Expenses/ExpenseController");
+const ExpenseTypesController = require("../controllers/Expenses/ExpenseTypesController");
+/*const ExpensesController = require("../controllers/Expenses/ExpenseController");
 const ProductsController = require("../controllers/Products/ProductsController");
 const PurchasesController = require("../controllers/Purches/PurchesController");
 
@@ -66,8 +66,8 @@ router.get("/SuppliersList/:pageNo/:perPage/:searchKeyword", AuthVerifyMiddlewar
 router.get("/SuppliersDropDown", AuthVerifyMiddleware, SuppliersController.SuppliersDropDown);
 router.get("/DeleteSupplier/:id", AuthVerifyMiddleware, SuppliersController.DeleteSupplier);
 router.get("/SuppliersDetailsByID/:id", AuthVerifyMiddleware, SuppliersController.SuppliersDetailsByID);
+//console.log('supplier controller',SuppliersController)
 
-/*
 // ExpenseTypes
 router.post("/CreateExpenseTypes", AuthVerifyMiddleware, ExpenseTypesController.CreateExpenseTypes);
 router.post("/UpdateExpenseTypes/:id", AuthVerifyMiddleware, ExpenseTypesController.UpdateExpenseTypes);
@@ -75,7 +75,9 @@ router.get("/ExpenseTypesList/:pageNo/:perPage/:searchKeyword", AuthVerifyMiddle
 router.get("/ExpenseTypesDropDown", AuthVerifyMiddleware, ExpenseTypesController.ExpenseTypesDropDown);
 router.get("/DeleteExpenseTypes/:id", AuthVerifyMiddleware, ExpenseTypesController.DeleteExpenseTypes);
 router.get("/ExpenseTypesDetailsByID/:id", AuthVerifyMiddleware, ExpenseTypesController.ExpenseTypesDetailsByID);
+console.log('expense controller',ExpenseTypesController);
 
+/*
 // Expenses
 router.post("/CreateExpenses", AuthVerifyMiddleware, ExpensesController.CreateExpenses);
 router.post("/UpdateExpenses/:id", AuthVerifyMiddleware, ExpensesController.UpdateExpenses);
