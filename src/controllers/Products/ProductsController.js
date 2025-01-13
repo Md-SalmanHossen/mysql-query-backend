@@ -1,71 +1,93 @@
-const DataModel = require("../../models/product/ProductsModel");
+const db = require("../../config/db"); // MySQL connection instance
 const CreateService = require("../../services/common/CreateService");
 const UpdateService = require("../../services/common/UpdateService");
-
 const ListTwoJoinService = require("../../services/common/ListTwoJoinService");
 const CheckAssociateService = require("../../services/common/CheeckAssociateService");
-const SaleProductsModel = require("../../models/sells/SalesProductsModel");
-
-const PurchaseProductsModel = require("../../models/purches/PurchesProductModel");
-const ReturnProductsModel = require("../../models/Returns/ReturnProductsModel");
 const DeleteService = require("../../services/common/DeleteService");
-
 const DetailsByIDService = require("../../services/common/DetailsByID");
 const DropDownService = require("../../services/common/DrowpDownService");
 
-
-exports.CreateProducts=async (req, res) => {
-    let Result= await CreateService(req,DataModel);
-    res.status(200).json(Result)
-}
-
-exports.UpdateProducts=async (req, res) => {
-    let Result=await UpdateService(req,DataModel)
-    res.status(200).json(Result)
-}
-
-exports.ProductsList=async (req, res) => {
-    let SearchRgx = {"$regex": req.params.searchKeyword, "$options": "i"}
-    let JoinStage1={$lookup: {from: "brands", localField: "BrandID", foreignField: "_id", as: "brands"}};
-    let JoinStage2= {$lookup: {from: "categories", localField: "CategoryID", foreignField: "_id", as: "categories"}};
-    let SearchArray=[{Name: SearchRgx},{Unit: SearchRgx},{Details: SearchRgx},{'brands.Name':SearchRgx},{'categories.Name':SearchRgx}]
-    let Result=await ListTwoJoinService(req,DataModel,SearchArray,JoinStage1,JoinStage2);
-    res.status(200).json(Result)
-}
-
-
-exports.ProductsDetailsByID=async (req, res) => {
-    let Result= await DetailsByIDService(req,DataModel)
-    res.status(200).json(Result)
-}
-
-
-exports.DeleteProduct=async (req, res) => {
-    let DeleteID=req.params.id;
-    const ObjectId = mongoose.Types.ObjectId;
-
-    let CheckReturnAssociate= await CheckAssociateService({ProductID:ObjectId(DeleteID)},ReturnProductsModel);
-    let CheckPurchaseAssociate= await CheckAssociateService({ProductID:ObjectId(DeleteID)},PurchaseProductsModel);
-    let CheckSaleAssociate= await CheckAssociateService({ProductID:ObjectId(DeleteID)},SaleProductsModel);
-
-    if(CheckReturnAssociate){
-        res.status(200).json({status: "associate", data: "Associate with Return"})
+// Create a new product
+exports.CreateProducts = async (req, res) => {
+    try {
+        const result = await CreateService(req, "products");
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
     }
-    else if(CheckPurchaseAssociate){
-        res.status(200).json({status: "associate", data: "Associate with Purchase"})
-    }
-    else if(CheckSaleAssociate){
-        res.status(200).json({status: "associate", data: "Associate with Sale"})
-    }
-    else{
-        let Result=await DeleteService(req,DataModel);
-        res.status(200).json(Result)
-    }
-}
+};
 
+// Update a product
+exports.UpdateProducts = async (req, res) => {
+    try {
+        const result = await UpdateService(req, "products");
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
 
+// List products with two joins and search
+exports.ProductsList = async (req, res) => {
+    try {
+        const searchKeyword = `%${req.params.searchKeyword}%`;
+        const joinStage1 = `LEFT JOIN brands ON products.BrandID = brands.id`;
+        const joinStage2 = `LEFT JOIN categories ON products.CategoryID = categories.id`;
+        const searchConditions = `
+            products.Name LIKE ? OR 
+            products.Unit LIKE ? OR 
+            products.Details LIKE ? OR 
+            brands.Name LIKE ? OR 
+            categories.Name LIKE ?
+        `;
+        const result = await ListTwoJoinService(req, "products", searchConditions, [searchKeyword, searchKeyword, searchKeyword, searchKeyword, searchKeyword], joinStage1, joinStage2);
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
 
-exports.ProductsDropDown=async (req, res) => {
-    let Result= await DropDownService(req,DataModel,{_id:1,Name:1})
-    res.status(200).json(Result)
-}
+// Get product details by ID
+exports.ProductsDetailsByID = async (req, res) => {
+    try {
+        const result = await DetailsByIDService(req, "products");
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+// Delete a product
+exports.DeleteProduct = async (req, res) => {
+    try {
+        const deleteID = req.params.id;
+
+        // Check associations
+        const checkReturn = await CheckAssociateService(`SELECT * FROM returns WHERE ProductID = ?`, [deleteID]);
+        const checkPurchase = await CheckAssociateService(`SELECT * FROM purchases WHERE ProductID = ?`, [deleteID]);
+        const checkSale = await CheckAssociateService(`SELECT * FROM sales WHERE ProductID = ?`, [deleteID]);
+
+        if (checkReturn.length > 0) {
+            res.status(200).json({ status: "associate", data: "Associate with Return" });
+        } else if (checkPurchase.length > 0) {
+            res.status(200).json({ status: "associate", data: "Associate with Purchase" });
+        } else if (checkSale.length > 0) {
+            res.status(200).json({ status: "associate", data: "Associate with Sale" });
+        } else {
+            const result = await DeleteService(req, "products");
+            res.status(200).json(result);
+        }
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+// Get dropdown list of products
+exports.ProductsDropDown = async (req, res) => {
+    try {
+        const result = await DropDownService(req, "products", ["id", "Name"]);
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};

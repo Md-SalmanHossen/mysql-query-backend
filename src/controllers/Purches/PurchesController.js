@@ -1,7 +1,6 @@
 const ParentModel = require("../../models/purches/PurchesModel");
 const ChildsModel = require("../../models/purches/PurchesProductModel");
 const CreateParentChildsService = require("../../services/common/CreateParentChildsService");
-const ListOneJoinService = require("../../services/common/ListOneJoinService");
 const DeleteParentChildsService = require("../../services/common/DeleteParentChildsService");
 const db = require("../../config/db"); // Assuming db connection is set up
 

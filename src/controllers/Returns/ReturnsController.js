@@ -15,20 +15,31 @@ exports.CreateReturns = async (req, res) => {
 // Returns List with Search and Join (with customers table)
 exports.ReturnsList = async (req, res) => {
     let searchKeyword = req.params.searchKeyword;
+
+    // SQL LIKE syntax for search
+    let searchRgx = `%${searchKeyword}%`;
+
+    // Query to join Returns and Customers tables
     let query = `
         SELECT r.*, c.CustomerName, c.Address, c.Phone, c.Email
         FROM returns r
         LEFT JOIN customers c ON r.CustomerID = c._id
         WHERE r.Note LIKE ? OR c.CustomerName LIKE ? OR c.Address LIKE ? OR c.Phone LIKE ? OR c.Email LIKE ?
     `;
-    let result = await db.query(query, [
-        `%${searchKeyword}%`,
-        `%${searchKeyword}%`,
-        `%${searchKeyword}%`,
-        `%${searchKeyword}%`,
-        `%${searchKeyword}%`
-    ]);
-    res.status(200).json(result[0]);
+
+    try {
+        // Execute query with parameters
+        const [rows] = await db.query(query, [
+            searchRgx,
+            searchRgx,
+            searchRgx,
+            searchRgx,
+            searchRgx
+        ]);
+        res.status(200).json(rows);
+    } catch (err) {
+        res.status(500).json({ status: 'error', message: err.message });
+    }
 }
 
 // Delete Return (Parent and Child records)

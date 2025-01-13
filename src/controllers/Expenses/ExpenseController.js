@@ -2,7 +2,6 @@ const DataModel = require("../../models/expense/ExpenseModel");
 const CreateService = require("../../services/common/CreateService");
 const UpdateService = require("../../services/common/UpdateService");
 
-const ListOneJoinService = require("../../services/common/ListOneJoinService");
 const DeleteService = require("../../services/common/DeleteService");
 const DetailsByIDService = require("../../services/common/DetailsByID");
 const db = require("../../config/db"); 

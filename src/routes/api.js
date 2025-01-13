@@ -8,15 +8,16 @@ const CategoriesController = require("../controllers/Categories/CategoryControll
 const CustomersController = require("../controllers/Customers/CustomerController");
 const SuppliersController = require("../controllers/Suppliers/SuppliersController");
 const ExpenseTypesController = require("../controllers/Expenses/ExpenseTypesController");
-/*const ExpensesController = require("../controllers/Expenses/ExpenseController");
+const ExpensesController = require("../controllers/Expenses/ExpenseController");
 const ProductsController = require("../controllers/Products/ProductsController");
 const PurchasesController = require("../controllers/Purches/PurchesController");
 
 const SalesController = require("../controllers/Sales/SalesController");
+
 const ReturnsController = require("../controllers/Returns/ReturnsController");
 const ReportController = require("../controllers/Report/ReportController");
 const SummaryController = require("../controllers/Summary/SummaryController");
-*/
+
 const router = express.Router();
 
 // User Profile 
@@ -75,15 +76,17 @@ router.get("/ExpenseTypesList/:pageNo/:perPage/:searchKeyword", AuthVerifyMiddle
 router.get("/ExpenseTypesDropDown", AuthVerifyMiddleware, ExpenseTypesController.ExpenseTypesDropDown);
 router.get("/DeleteExpenseTypes/:id", AuthVerifyMiddleware, ExpenseTypesController.DeleteExpenseTypes);
 router.get("/ExpenseTypesDetailsByID/:id", AuthVerifyMiddleware, ExpenseTypesController.ExpenseTypesDetailsByID);
-console.log('expense controller',ExpenseTypesController);
+//console.log('expense controller',ExpenseTypesController);
 
-/*
+
 // Expenses
 router.post("/CreateExpenses", AuthVerifyMiddleware, ExpensesController.CreateExpenses);
 router.post("/UpdateExpenses/:id", AuthVerifyMiddleware, ExpensesController.UpdateExpenses);
 router.get("/ExpensesList/:pageNo/:perPage/:searchKeyword", AuthVerifyMiddleware, ExpensesController.ExpensesList);
 router.get("/DeleteExpense/:id", AuthVerifyMiddleware, ExpensesController.DeleteExpense);
 router.get("/ExpenseDetailsByID/:id", AuthVerifyMiddleware, ExpensesController.ExpenseDetailsByID);
+//console.log('expense controller',ExpensesController);
+
 
 // Products
 router.post("/CreateProducts", AuthVerifyMiddleware, ProductsController.CreateProducts);
@@ -92,33 +95,38 @@ router.get("/ProductsList/:pageNo/:perPage/:searchKeyword", AuthVerifyMiddleware
 router.get("/DeleteProduct/:id", AuthVerifyMiddleware, ProductsController.DeleteProduct);
 router.get("/ProductsDetailsByID/:id", AuthVerifyMiddleware, ProductsController.ProductsDetailsByID);
 router.get("/ProductsDropDown", AuthVerifyMiddleware, ProductsController.ProductsDropDown);
+//console.log('product controller',ProductsController);
 
 // Purchases
 router.post("/CreatePurchases", AuthVerifyMiddleware, PurchasesController.CreatePurchases);
 router.get("/PurchasesList/:pageNo/:perPage/:searchKeyword", AuthVerifyMiddleware, PurchasesController.PurchasesList);
 router.get("/PurchasesDelete/:id", AuthVerifyMiddleware, PurchasesController.PurchasesDelete);
+//console.log('purchase controller',PurchasesController);
 
 // Sales
 router.post("/CreateSales", AuthVerifyMiddleware, SalesController.CreateSales);
 router.get("/SalesList/:pageNo/:perPage/:searchKeyword", AuthVerifyMiddleware, SalesController.SalesList);
 router.get("/SaleDelete/:id", AuthVerifyMiddleware, SalesController.SaleDelete);
+//console.log('sales',SalesController);
 
 // Return
 router.post("/CreateReturns", AuthVerifyMiddleware, ReturnsController.CreateReturns);
 router.get("/ReturnsList/:pageNo/:perPage/:searchKeyword", AuthVerifyMiddleware, ReturnsController.ReturnsList);
 router.get("/ReturnDelete/:id", AuthVerifyMiddleware, ReturnsController.ReturnDelete);
+//console.log('return ',ReturnsController);
 
 // Report
 router.post("/ExpensesByDate", AuthVerifyMiddleware, ReportController.ExpensesByDate);
 router.post("/ReturnByDate", AuthVerifyMiddleware, ReportController.ReturnByDate);
 router.post("/PurchaseByDate", AuthVerifyMiddleware, ReportController.PurchaseByDate);
 router.post("/SalesByDate", AuthVerifyMiddleware, ReportController.SalesByDate);
+//console.log('report',ReportController);
 
 // Summary
 router.get("/ExpensesSummary", AuthVerifyMiddleware, SummaryController.ExpensesSummary);
 router.get("/ReturnSummary", AuthVerifyMiddleware, SummaryController.ReturnSummary);
 router.get("/PurchaseSummary", AuthVerifyMiddleware, SummaryController.PurchaseSummary);
 router.get("/SalesSummary", AuthVerifyMiddleware, SummaryController.SalesSummary);
-*/
+console.log('summary',SummaryController);
 
 module.exports = router;

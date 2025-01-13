@@ -15,6 +15,6 @@ const db = mysql.createPool({
   connectionLimit: 50,
   queueLimit: 0,
 });
-db.setMaxListeners(20);
+//db.setMaxListeners(2);
 
 module.exports=db;
