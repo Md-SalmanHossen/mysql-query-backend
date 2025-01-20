@@ -9,7 +9,7 @@ module.exports = (req, res, next) => {
     }
 
     // Verify the token using the secret key stored in an environment variable
-    jwt.verify(token, process.env.JWT_SECRET_KEY, (err, decoded) => {
+    jwt.verify(token, 'SecretKey123456789', (err, decoded) => {
         if (err) {
             return res.status(401).json({ status: "unauthorized", message: "Invalid or expired token" });
         } else {

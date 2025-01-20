@@ -127,6 +127,7 @@ router.get("/ExpensesSummary", AuthVerifyMiddleware, SummaryController.ExpensesS
 router.get("/ReturnSummary", AuthVerifyMiddleware, SummaryController.ReturnSummary);
 router.get("/PurchaseSummary", AuthVerifyMiddleware, SummaryController.PurchaseSummary);
 router.get("/SalesSummary", AuthVerifyMiddleware, SummaryController.SalesSummary);
-console.log('summary',SummaryController);
+//console.log('summary',SummaryController);
 
 module.exports = router;
+
