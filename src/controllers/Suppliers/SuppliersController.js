@@ -1,4 +1,4 @@
-const SuppliersModel = require("../../models/Suppliers/SuppliersModel");
+const SuppliersModel = require("../../models/suppliers/SuppliersModel");
 const CreateService = require("../../services/common/CreateService");
 const UpdateService = require("../../services/common/UpdateService");
 const ListService = require("../../services/common/ListService");
